@@ -1,0 +1,12 @@
+<link rel="import" href="../../iron-ajax/iron-ajax.html">
+<dom-module id="hc-series">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <iron-ajax auto url="{{dataUri}}" handle-as="json" last-response="{{ajaxData}}"></iron-ajax>
+  </template>
+  <script src="./hc-series.js"></script>
+</dom-module>

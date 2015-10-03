@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+    <title>hc-elements Demo</title>
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../bower_components/highcharts/adapters/standalone-framework.js"></script>
+    <script src="../bower_components/highcharts/highcharts.js"></script>
+    <link rel="import" href="../hc-elements.html">
+  </head>
+  <body unresolved>
+
+    <hc-chart title="test" type="column">
+      <hc-series name="Series 1" data="[149,272,80]" color="red"></hc-series>
+      <hc-series name="Series 2"
+                  data-uri="./data/fake1.json" id="second" color="blue"></hc-series>
+    </hc-chart>
+
+  </body>
+</html>
