@@ -1,26 +1,31 @@
-Polymer({
+class HcChart {
 
-  is: 'hc-chart',
+  beforeRegister() {
 
-  properties: {
-    title: {
-      type: String,
-      value: function () {
-        return 'Chart title';
+    this.is = 'hc-chart';
+    this.properties = {
+      title: {
+        type: String,
+        value: function () {
+          return 'Chart title';
+        }
+      },
+      type: {
+        type: 'String',
+        value: function () {
+          return 'line';
+        }
       }
-    },
-    type: {
-      type: 'String',
-      value: function () {
-        return 'line';
-      }
-    }
-  },
-  observers: [
-    '_computeOptions(title, type)'
-  ],
+    };
+    this.observers = [
+      '_computeOptions(title, type)'
+    ];
 
-  attached: function () {
+  }
+
+  attached() {
+
+    this._ready = false;
 
     this._options = {
       chart: {
@@ -32,9 +37,14 @@ Polymer({
       series: []
     };
 
-    this._initChildren();
-  },
-  _computeOptions: function (title, type) {
+    this._children = Polymer.dom(this).children;
+
+    this._draw(this._onChartReady.bind(this));
+
+  }
+
+  _computeOptions(title, type) {
+
     if (!this._options) {
       this._options = {
         chart: {
@@ -48,56 +58,75 @@ Polymer({
     }
     this._options.title.text = this.title;
     this._options.chart.type = this.type;
-  },
-  _draw: function (callback) {
-    console.log('draw', this._options);
 
-    for (var i = 0; i < this._children.length; i++) {
-      this._mergeParameters(this._children[i].options);
+  }
+
+  _draw(callback) {
+
+    for (let i = 0; i < this._children.length; i++) {
+
+      if (this._children[i].tagName === 'HC-SERIES') {
+        this._children[i].id = this._children[i].id || `series-${i}`;
+      }
+      this._mergeParameters(this._children[i].tagName, this._children[i].options);
     }
 
     this._options.chart.renderTo = this.$.container;
+    console.debug('draw', this._options);
     this._chart = new Highcharts.Chart(this._options, callback);
-  },
-  _initChildren: function () {
-    this._children = Polymer.dom(this).children;
 
-    for (var i = 0; i < this._children.length; i++) {
-      if (this._children[i].tagName === 'HC-SERIES') {
-        this._children[i]._id = 'series-' + i;
-      }
+  }
+
+  _initChildren() {
+
+    for (let i = 0; i < this._children.length; i++) {
       this._children[i].addEventListener('options-changed', this._childrenChanged.bind(this));
     }
-  },
-  _mergeParameters: function (parameter) {
-    Object.keys(parameter).forEach((key) => {
-      if (key === 'series') {
-        this._options.series = this._options.series.concat(parameter[key]);
-      }
-    });
-  },
-  _childrenChanged: function (event) {
-    // Create the chart if not already exists and call the function
-    // when ready
-    if (!this._chart) {
-      return this._draw((chart) => {
-        this._onChartReady(chart);
+
+  }
+
+  _mergeParameters(tagName, parameter) {
+
+    if (tagName === 'HC-SERIES') {
+      this._options.series.push(parameter);
+    }
+
+  }
+
+  _childrenChanged(event) {
+
+    if (!this._ready) {
+      return this.addEventListenerOnce('ready', () => {
         this._childrenChanged.apply(this, arguments);
       });
     }
-    console.log('changed', event.detail.value);
-    var target = event.path[0];
+
+    let target = event.target || event.path[0];
     if (target.tagName === 'HC-SERIES') {
-      var series = this._chart.get(target._id);
+      let series = this._chart.get(target.options.id);
       if (!series) {
-        return this._chart.addSeries(event.detail.value.series);
+        console.debug ('Add series', target.options);
+        return this._chart.addSeries(target.options);
       }
-      series.update(event.detail.value.series);
+      console.debug ('Update series', target.options);
+      series.update(target.options);
     }
-  },
-  _onChartReady: function (chart) {
-    this._chart = chart;
-    this._options = this._chart.options;
   }
 
-});
+  _onChartReady(chart) {
+
+    this._chart = chart;
+    this._ready = true;
+    this.fire('ready');
+    this._options = this._chart.options;
+    this._initChildren();
+
+  }
+
+  get chart() {
+    return this._chart;
+  }
+
+}
+
+Polymer(HcChart);

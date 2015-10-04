@@ -11,11 +11,31 @@
   </head>
   <body unresolved>
 
-    <hc-chart title="test" type="column">
-      <hc-series name="Series 1" data="[149,272,80]" color="red"></hc-series>
-      <hc-series name="Series 2"
-                  data-uri="./data/fake1.json" id="second" color="blue"></hc-series>
+    <hc-chart title="test">
+      <hc-series name="Series poat"
+                  data="[149,272,80]"
+                  color="red"
+                  id="first"
+                  ></hc-series>
+      <hc-series name="Series flet"
+                  data-uri="./data/fake1.json"></hc-series>
     </hc-chart>
+
+    <button id="randomdata">ClickMe</button>
+
+    <script>
+      function randomArray() {
+        var arr = [];
+        var length = (1 + Math.random() * 100);
+        for (var i = 0; i < length; i++) {
+          arr.push(Math.random()*10000);
+        }
+        return arr;
+      }
+      document.querySelector('#randomdata').onclick = function () {
+        document.querySelector('#first').data = randomArray();
+      }
+    </script>
 
   </body>
 </html>
